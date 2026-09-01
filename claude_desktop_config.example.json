@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "governed-calendar": {
+      "command": "/ABSOLUTE/PATH/governed-calendar-agent/.venv/bin/python",
+      "args": ["-m", "gca.server"],
+      "env": {
+        "PYTHONPATH": "/ABSOLUTE/PATH/governed-calendar-agent/src",
+        "GCA_DSN": "dbname=governed_calendar",
+        "GCA_CALENDAR_PROVIDER": "sandbox",
+        "GCA_TASKS_PROVIDER": "sandbox"
+      }
+    }
+  }
+}

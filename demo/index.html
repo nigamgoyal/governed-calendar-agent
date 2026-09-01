@@ -1,0 +1,1332 @@
+<title>Approve Before It Writes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F6F7F5; --raised:#FFFFFF; --sunk:#EFF2EF; --ink:#14201E; --ink-soft:#33423E;
+    --muted:#5E6B67; --rule:#D9DEDA; --rule-strong:#BFC7C2;
+    --accent:#0B6A5F; --accent-soft:#E3EEEB;
+    --ok:#2F6B4F; --ok-soft:#E4EFE8; --flag:#8C6212; --flag-soft:#F6EEDC;
+    --alert:#A03A2B; --alert-soft:#F8E7E3;
+    --ghost:#0B6A5F;
+    --console-bg:#0E1817; --console-fg:#CBD6D2; --console-dim:#71827D;
+    --console-ok:#7FBE9B; --console-flag:#D9A85C; --console-alert:#E08672; --console-accent:#69B8AC;
+    --shadow:0 1px 2px rgba(20,32,30,.05), 0 10px 28px -20px rgba(20,32,30,.3);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0F1614; --raised:#161F1D; --sunk:#121A18; --ink:#E9EEEB; --ink-soft:#C3CEC9;
+      --muted:#93A09B; --rule:#26302D; --rule-strong:#3A4642;
+      --accent:#5FB9AA; --accent-soft:#16302C;
+      --ok:#7FBE9B; --ok-soft:#15271F; --flag:#D9A85C; --flag-soft:#2A2114;
+      --alert:#E08672; --alert-soft:#2C1815; --ghost:#5FB9AA;
+      --console-bg:#0A100F; --console-fg:#C7D2CE;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0F1614; --raised:#161F1D; --sunk:#121A18; --ink:#E9EEEB; --ink-soft:#C3CEC9;
+    --muted:#93A09B; --rule:#26302D; --rule-strong:#3A4642;
+    --accent:#5FB9AA; --accent-soft:#16302C;
+    --ok:#7FBE9B; --ok-soft:#15271F; --flag:#D9A85C; --flag-soft:#2A2114;
+    --alert:#E08672; --alert-soft:#2C1815; --ghost:#5FB9AA;
+    --console-bg:#0A100F; --console-fg:#C7D2CE;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:15px; line-height:1.55;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 22px 80px}
+
+  header.mast{padding:48px 0 26px; border-bottom:1px solid var(--rule)}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 14px}
+  h1{font-family:Spectral,Georgia,serif; font-weight:600; font-size:clamp(32px,5vw,46px);
+    line-height:1.05; letter-spacing:-.015em; margin:0 0 14px; text-wrap:balance}
+  .thesis{font-family:Spectral,Georgia,serif; font-size:18px; line-height:1.5;
+    color:var(--ink-soft); margin:0; max-width:60ch; text-wrap:pretty}
+  .honesty{margin:18px 0 0; font-size:13px; color:var(--muted); max-width:66ch}
+
+  /* counter */
+  .counter{display:flex; align-items:center; gap:14px; margin:26px 0 0; padding:14px 18px;
+    background:var(--raised); border:1px solid var(--rule); border-radius:4px; flex-wrap:wrap}
+  .counter .lbl{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted)}
+  .counter .val{font-family:Spectral,Georgia,serif; font-size:30px; font-weight:600;
+    line-height:1; font-variant-numeric:tabular-nums; color:var(--accent)}
+  .counter .val.hot{color:var(--ok)}
+  .counter .say{font-size:13.5px; color:var(--ink-soft); flex:1; min-width:220px}
+
+  /* rail */
+  .rail{display:flex; gap:0; margin:26px 0 0; border:1px solid var(--rule); border-radius:4px;
+    overflow:hidden; background:var(--raised); flex-wrap:wrap}
+  .rail button{flex:1; min-width:104px; border:0; border-right:1px solid var(--rule);
+    background:transparent; padding:11px 8px; cursor:pointer; text-align:center;
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--muted); font-weight:500}
+  .rail button:last-child{border-right:0}
+  .rail button:hover{background:var(--sunk); color:var(--ink)}
+  .rail button[aria-current="true"]{background:var(--accent); color:#fff}
+  .rail button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+
+  /* layout */
+  .stage{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:26px; margin-top:30px}
+  @media (max-width:940px){ .stage{grid-template-columns:1fr} }
+
+  .panel{background:var(--raised); border:1px solid var(--rule); border-radius:4px; overflow:hidden}
+  .panel h2{font-family:"IBM Plex Sans",sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
+    margin:0; padding:12px 16px; border-bottom:1px solid var(--rule); background:var(--sunk)}
+  .pad{padding:18px}
+
+  .step-title{font-family:Spectral,Georgia,serif; font-size:21px; font-weight:600;
+    margin:0 0 8px; line-height:1.25; text-wrap:balance}
+  .step-body{font-size:14.5px; color:var(--ink-soft); margin:0 0 16px; max-width:52ch}
+  .step-body strong{color:var(--ink)}
+
+  .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px}
+  .btn{font-family:"IBM Plex Sans",sans-serif; font-size:13.5px; font-weight:600;
+    padding:10px 16px; border-radius:3px; border:1px solid var(--accent);
+    background:var(--accent); color:#fff; cursor:pointer}
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn.warn{border-color:var(--alert); background:transparent; color:var(--alert)}
+  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+  .btn:disabled{opacity:.45; cursor:default}
+
+  .ask-bubble{background:var(--accent-soft); border:1px solid var(--rule);
+    border-radius:4px; padding:13px 15px; margin:0 0 16px}
+  .ask-bubble .who{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 5px}
+  .ask-bubble p{margin:0; font-size:15px; font-family:Spectral,Georgia,serif; color:var(--ink)}
+
+  .console{background:var(--console-bg); border:1px solid var(--rule-strong); border-radius:4px;
+    overflow-x:auto; margin:0}
+  .console pre{margin:0; padding:16px 18px; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; line-height:1.7; color:var(--console-fg); white-space:pre}
+  .c-dim{color:var(--console-dim)} .c-ok{color:var(--console-ok)}
+  .c-flag{color:var(--console-flag)} .c-alert{color:var(--console-alert)}
+  .c-accent{color:var(--console-accent)} .c-b{color:#EAF1EE; font-weight:500}
+
+  /* week grid */
+  .weekwrap{overflow-x:auto}
+  .week{min-width:560px; padding:0 14px 16px}
+  .whead{display:grid; grid-template-columns:46px repeat(5,1fr); gap:6px; padding:12px 0 8px}
+  .whead div{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--muted); text-align:center}
+  .wbody{display:grid; grid-template-columns:46px repeat(5,1fr); gap:6px}
+  .hours{position:relative; height:340px}
+  .hours span{position:absolute; right:4px; transform:translateY(-50%);
+    font-family:"IBM Plex Mono",monospace; font-size:9.5px; color:var(--muted);
+    font-variant-numeric:tabular-nums}
+  .col{position:relative; height:340px; background:var(--sunk); border-radius:3px;
+    border:1px solid var(--rule)}
+  .gl{position:absolute; left:0; right:0; border-top:1px solid var(--rule); opacity:.65}
+  .ev{position:absolute; left:3px; right:3px; border-radius:2px; padding:3px 5px;
+    font-size:10px; line-height:1.25; overflow:hidden; border:1px solid;}
+  .ev .t{font-family:"IBM Plex Mono",monospace; font-size:8.5px; opacity:.85; display:block}
+  .ev.ext{background:var(--raised); border-color:var(--rule-strong); color:var(--ink-soft)}
+  .ev.own{background:var(--accent-soft); border-color:var(--accent); color:var(--ink)}
+  .ev.new{background:var(--ok-soft); border-color:var(--ok); color:var(--ink)}
+  .ev.flagged{background:var(--flag-soft); border-color:var(--flag); color:var(--ink);
+    box-shadow:0 0 0 2px var(--flag-soft)}
+  .ev.ghost{background:transparent; border-style:dashed; border-color:var(--ghost);
+    color:var(--ghost); font-style:italic}
+  .ev.fading{opacity:.34}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; padding:10px 14px 0; font-size:11.5px;
+    color:var(--muted)}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px;
+    border:1px solid; margin-right:5px; vertical-align:-1px}
+
+  /* small state panels */
+  .strip{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px}
+  @media (max-width:620px){ .strip{grid-template-columns:1fr} }
+  .mini{background:var(--raised); border:1px solid var(--rule); border-radius:4px; padding:13px 15px}
+  .mini h3{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--muted); margin:0 0 9px; font-weight:500}
+  .mini p{margin:0; font-size:13px; color:var(--ink-soft)}
+  .pill{display:inline-flex; align-items:center; gap:6px; font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; padding:3px 9px;
+    border-radius:2px; border:1px solid currentColor; font-weight:500}
+  .pill.ok{color:var(--ok)} .pill.flag{color:var(--flag)} .pill.alert{color:var(--alert)}
+  .dot{width:6px; height:6px; border-radius:50%; background:currentColor}
+  .tasklist{list-style:none; margin:0; padding:0}
+  .tasklist li{font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--rule); color:var(--ink-soft)}
+  .tasklist li:last-child{border-bottom:0}
+  .tasklist .none{color:var(--muted); font-style:italic}
+
+  /* audit */
+  .auditwrap{overflow-x:auto; margin-top:26px}
+  table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px;
+    background:var(--raised); border:1px solid var(--rule); border-radius:4px}
+  th,td{text-align:left; padding:9px 13px; border-bottom:1px solid var(--rule);
+    font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+  thead th{font-size:9.5px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted);
+    background:var(--sunk); font-weight:500}
+  tbody tr:last-child td{border-bottom:0}
+  td.res-ok{color:var(--ok)} td.res-skipped{color:var(--flag)}
+  .beforeafter{font-size:11px; color:var(--muted)}
+  .empty{padding:22px 14px; text-align:center; color:var(--muted); font-size:13px;
+    background:var(--raised); border:1px dashed var(--rule); border-radius:4px; margin-top:26px}
+
+  footer{margin-top:56px; padding-top:20px; border-top:1px solid var(--rule);
+    font-size:13px; color:var(--muted); display:flex; justify-content:space-between;
+    gap:14px; flex-wrap:wrap}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow">Interactive walkthrough · Governed Calendar Agent</p>
+    <h1>Approve before it writes</h1>
+    <p class="thesis">Claude, given scoped access to a CEO's calendar and project board — where
+      every change is proposed, shown, and approved before anything is touched.</p>
+    <p class="honesty">This is a replay of one real run of the working system, not a mock-up.
+      Every plan, timestamp, audit row and error message below was produced by the code and
+      exported straight from its database. Click through it in your own time.</p>
+
+    <div class="counter">
+      <div>
+        <div class="lbl">Writes to the calendar so far</div>
+        <div class="val" id="writeCount">0</div>
+      </div>
+      <p class="say" id="counterSay">Nothing has been written. Claude has not been asked anything yet.</p>
+    </div>
+
+    <nav class="rail" id="rail" aria-label="Walkthrough steps"></nav>
+  </header>
+
+  <div class="stage">
+    <div>
+      <div class="panel">
+        <h2>What happens</h2>
+        <div class="pad" id="narrative"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>The CEO's week <span id="weekLabel" style="text-transform:none;letter-spacing:0;font-weight:400"></span></h2>
+        <div class="weekwrap">
+          <div class="week">
+            <div class="whead" id="whead"></div>
+            <div class="wbody" id="wbody"></div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--raised);border-color:var(--rule-strong)"></i>Existing meeting</span>
+          <span><i style="background:var(--accent-soft);border-color:var(--accent)"></i>His own block</span>
+          <span><i style="background:var(--ok-soft);border-color:var(--ok)"></i>Created by the agent</span>
+          <span><i style="background:var(--flag-soft);border-color:var(--flag)"></i>Flagged, untouched</span>
+          <span><i style="border-color:var(--ghost);border-style:dashed"></i>Proposed only</span>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="mini">
+          <h3>ClickUp</h3>
+          <ul class="tasklist" id="tasks"></ul>
+        </div>
+        <div class="mini">
+          <h3>System health</h3>
+          <p id="health"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="auditArea"></div>
+
+  <footer>
+    <span>Built by Nigam Goyal</span>
+    <span>Python · MCP · PostgreSQL · Microsoft Graph · ClickUp</span>
+  </footer>
+</div>
+
+<script type="application/json" id="run">
+{
+  "generated_at": "2026-08-31T22:26:05.385029-04:00",
+  "timezone": "America/New_York",
+  "week_start": "2026-08-31T00:00:00-04:00",
+  "preferences": {
+    "timezone": "America/New_York",
+    "workday": {
+      "start": "09:00",
+      "end": "17:00"
+    },
+    "no_meetings_before": "09:00",
+    "no_meetings_after": "17:00",
+    "max_meetings_per_day": 4,
+    "min_focus_block_minutes": 60,
+    "max_focus_block_minutes": 120,
+    "buffer_minutes": 15,
+    "protected_blocks": [
+      {
+        "day": "friday",
+        "start": "12:00",
+        "end": "17:00",
+        "label": "Friday afternoon — protected, no meetings"
+      }
+    ],
+    "project_allocations": {
+      "Project Atlas": 4.0,
+      "LATAM Portfolio Review": 2.0
+    }
+  },
+  "ask": "Give Project Atlas 4 hours this week.",
+  "calendar_before": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "plan": {
+    "plan_id": "plan_b6a09c4f74",
+    "intent": "Give Project Atlas 4 hours in the week of 31 Aug 2026",
+    "project": "Project Atlas",
+    "hours_requested": 4.0,
+    "hours_scheduled": 4.0,
+    "shortfall_hours": 0.0,
+    "week_start": "2026-08-31T00:00:00-04:00",
+    "actions": [
+      {
+        "kind": "move_event",
+        "event_id": "evt_78a20a0c6ab1",
+        "subject": "Internal prep — Atlas SPV",
+        "from": {
+          "starts_at": "2026-08-31T08:00:00-04:00",
+          "ends_at": "2026-08-31T08:30:00-04:00"
+        },
+        "to": {
+          "starts_at": "2026-08-31T09:15:00-04:00",
+          "ends_at": "2026-08-31T09:45:00-04:00"
+        },
+        "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it"
+      },
+      {
+        "kind": "flag_conflict",
+        "event_id": "evt_1ee8e5f9a028",
+        "subject": "Investor update — LATAM fund",
+        "when": "2026-09-04T14:00:00-04:00",
+        "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+        "requires": "your decision — organised by an outside party"
+      },
+      {
+        "kind": "create_event",
+        "subject": "Project Atlas — focus block",
+        "starts_at": "2026-08-31T12:15:00-04:00",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "category": "Project Atlas",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas"
+      },
+      {
+        "kind": "create_event",
+        "subject": "Project Atlas — focus block",
+        "starts_at": "2026-09-01T09:00:00-04:00",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "category": "Project Atlas",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas"
+      },
+      {
+        "kind": "create_task",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00",
+        "reason": "keeps ClickUp and the calendar describing the same week"
+      }
+    ],
+    "respected": [
+      "No meetings before 09:00",
+      "No meetings after 17:00",
+      "15-minute buffer around every existing commitment",
+      "Focus blocks between 60 and 120 minutes",
+      "At most 4 meetings per day",
+      "Protected: Friday afternoon — protected, no meetings"
+    ],
+    "status": "proposed"
+  },
+  "diff_text": "PLAN plan_b6a09c4f74 — Give Project Atlas 4 hours in the week of 31 Aug 2026\nNothing has been written yet. This is a proposal.\n\n  ~ MOVE      Mon 31 Aug  Internal prep — Atlas SPV\n              08:00-08:30  ->  09:15-09:45\n              starts 08:00, before your 09:00 rule — yours to move, so rescheduling it\n\n  ! CONFLICT  Fri 04 Sep  14:00  Investor update — LATAM fund\n              lands inside 'Friday afternoon — protected, no meetings'\n              NOT changed — your decision — organised by an outside party\n\n  + CREATE    Mon 31 Aug  12:15-14:15  Project Atlas — focus block\n              2.0h toward the 4h you allocated to Project Atlas\n\n  + CREATE    Tue 01 Sep  09:00-11:00  Project Atlas — focus block\n              2.0h toward the 4h you allocated to Project Atlas\n\n  + TASK      Project Atlas — week of 31 Aug 2026\n              due Fri 04 Sep  17:00 — keeps ClickUp and the calendar describing the same week\n\nSummary: 2 event(s) created, 1 moved, 1 flagged for you, 1 task(s) created.\n         4h of 4h scheduled.\n\nPreferences respected:\n  - No meetings before 09:00\n  - No meetings after 17:00\n  - 15-minute buffer around every existing commitment\n  - Focus blocks between 60 and 120 minutes\n  - At most 4 meetings per day\n  - Protected: Friday afternoon — protected, no meetings",
+  "calendar_during_proposal": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "dry_run": {
+    "message": "Preview only. Nothing was written.",
+    "dry_run": true
+  },
+  "calendar_after_dry_run": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "apply": {
+    "ok": true,
+    "dry_run": false,
+    "plan_id": "plan_b6a09c4f74",
+    "applied": [
+      {
+        "action": "move_event",
+        "id": "evt_78a20a0c6ab1",
+        "subject": "Internal prep — Atlas SPV"
+      },
+      {
+        "action": "create_event",
+        "id": "evt_379566a62388",
+        "subject": "Project Atlas — focus block"
+      },
+      {
+        "action": "create_event",
+        "id": "evt_8bde3ebc9883",
+        "subject": "Project Atlas — focus block"
+      },
+      {
+        "action": "create_task",
+        "id": "task_716afe9f1660",
+        "subject": "Project Atlas — week of 31 Aug 2026"
+      }
+    ],
+    "skipped": [
+      {
+        "action": {
+          "kind": "flag_conflict",
+          "when": "2026-09-04T14:00:00-04:00",
+          "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+          "subject": "Investor update — LATAM fund",
+          "event_id": "evt_1ee8e5f9a028",
+          "requires": "your decision — organised by an outside party"
+        },
+        "why": "your decision — organised by an outside party"
+      }
+    ],
+    "errors": [],
+    "message": "Applied 4 action(s); 1 left for you."
+  },
+  "calendar_after": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T09:15:00-04:00",
+      "ends_at": "2026-08-31T09:45:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "c4af6014"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_379566a62388",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-08-31T12:15:00-04:00",
+      "ends_at": "2026-08-31T14:15:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "28f3fa75"
+    },
+    {
+      "id": "evt_8bde3ebc9883",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-09-01T09:00:00-04:00",
+      "ends_at": "2026-09-01T11:00:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "8023b777"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "tasks_after": [
+    {
+      "id": "task_716afe9f1660",
+      "name": "Project Atlas — week of 31 Aug 2026",
+      "status": "to do",
+      "due_at": "2026-09-04T17:00:00-04:00",
+      "project": "Project Atlas",
+      "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+    }
+  ],
+  "replay": {
+    "ok": true,
+    "dry_run": false,
+    "plan_id": "plan_b6a09c4f74",
+    "applied": [],
+    "skipped": [
+      {
+        "action": {
+          "to": {
+            "ends_at": "2026-08-31T09:45:00-04:00",
+            "starts_at": "2026-08-31T09:15:00-04:00"
+          },
+          "from": {
+            "ends_at": "2026-08-31T08:30:00-04:00",
+            "starts_at": "2026-08-31T08:00:00-04:00"
+          },
+          "kind": "move_event",
+          "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it",
+          "subject": "Internal prep — Atlas SPV",
+          "event_id": "evt_78a20a0c6ab1"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "flag_conflict",
+          "when": "2026-09-04T14:00:00-04:00",
+          "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+          "subject": "Investor update — LATAM fund",
+          "event_id": "evt_1ee8e5f9a028",
+          "requires": "your decision — organised by an outside party"
+        },
+        "why": "your decision — organised by an outside party"
+      },
+      {
+        "action": {
+          "kind": "create_event",
+          "reason": "2.0h toward the 4h you allocated to Project Atlas",
+          "ends_at": "2026-08-31T14:15:00-04:00",
+          "subject": "Project Atlas — focus block",
+          "category": "Project Atlas",
+          "starts_at": "2026-08-31T12:15:00-04:00"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "create_event",
+          "reason": "2.0h toward the 4h you allocated to Project Atlas",
+          "ends_at": "2026-09-01T11:00:00-04:00",
+          "subject": "Project Atlas — focus block",
+          "category": "Project Atlas",
+          "starts_at": "2026-09-01T09:00:00-04:00"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "create_task",
+          "name": "Project Atlas — week of 31 Aug 2026",
+          "due_at": "2026-09-04T17:00:00-04:00",
+          "reason": "keeps ClickUp and the calendar describing the same week",
+          "project": "Project Atlas",
+          "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+        },
+        "why": "already applied — idempotent replay"
+      }
+    ],
+    "errors": [],
+    "message": "Applied 0 action(s); 5 left for you."
+  },
+  "calendar_after_replay": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T09:15:00-04:00",
+      "ends_at": "2026-08-31T09:45:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "c4af6014"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_379566a62388",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-08-31T12:15:00-04:00",
+      "ends_at": "2026-08-31T14:15:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "28f3fa75"
+    },
+    {
+      "id": "evt_8bde3ebc9883",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-09-01T09:00:00-04:00",
+      "ends_at": "2026-09-01T11:00:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "8023b777"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "audit": [
+    {
+      "id": 10,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "actions": 5,
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": true,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "preview": true
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    },
+    {
+      "id": 11,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "move_event",
+      "params": {
+        "to": {
+          "ends_at": "2026-08-31T09:45:00-04:00",
+          "starts_at": "2026-08-31T09:15:00-04:00"
+        },
+        "from": {
+          "ends_at": "2026-08-31T08:30:00-04:00",
+          "starts_at": "2026-08-31T08:00:00-04:00"
+        },
+        "kind": "move_event",
+        "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it",
+        "subject": "Internal prep — Atlas SPV",
+        "event_id": "evt_78a20a0c6ab1"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_78a20a0c6ab1",
+      "before_state": {
+        "id": "evt_78a20a0c6ab1",
+        "etag": "d4dde71f",
+        "ends_at": "2026-08-31T08:30:00-04:00",
+        "subject": "Internal prep — Atlas SPV",
+        "category": null,
+        "organizer": "agent",
+        "starts_at": "2026-08-31T08:00:00-04:00"
+      },
+      "after_state": {
+        "id": "evt_78a20a0c6ab1",
+        "etag": "c4af6014",
+        "ends_at": "2026-08-31T09:45:00-04:00",
+        "subject": "Internal prep — Atlas SPV",
+        "category": null,
+        "organizer": "agent",
+        "starts_at": "2026-08-31T09:15:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:0:move_event"
+    },
+    {
+      "id": 12,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "kind": "flag_conflict",
+        "when": "2026-09-04T14:00:00-04:00",
+        "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+        "subject": "Investor update — LATAM fund",
+        "event_id": "evt_1ee8e5f9a028",
+        "requires": "your decision — organised by an outside party"
+      },
+      "dry_run": false,
+      "target_system": "calendar",
+      "target_id": "evt_1ee8e5f9a028",
+      "before_state": null,
+      "after_state": null,
+      "result": "skipped",
+      "error": "your decision — organised by an outside party",
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:1:flag_conflict"
+    },
+    {
+      "id": 13,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_event",
+      "params": {
+        "kind": "create_event",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "starts_at": "2026-08-31T12:15:00-04:00"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_379566a62388",
+      "before_state": null,
+      "after_state": {
+        "id": "evt_379566a62388",
+        "etag": "28f3fa75",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "organizer": "agent",
+        "starts_at": "2026-08-31T12:15:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:2:create_event"
+    },
+    {
+      "id": 14,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_event",
+      "params": {
+        "kind": "create_event",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "starts_at": "2026-09-01T09:00:00-04:00"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_8bde3ebc9883",
+      "before_state": null,
+      "after_state": {
+        "id": "evt_8bde3ebc9883",
+        "etag": "8023b777",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "organizer": "agent",
+        "starts_at": "2026-09-01T09:00:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:3:create_event"
+    },
+    {
+      "id": 15,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_task",
+      "params": {
+        "kind": "create_task",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "reason": "keeps ClickUp and the calendar describing the same week",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+      },
+      "dry_run": false,
+      "target_system": "clickup-sandbox",
+      "target_id": "task_716afe9f1660",
+      "before_state": null,
+      "after_state": {
+        "id": "task_716afe9f1660",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "status": "to do",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:4:create_task"
+    },
+    {
+      "id": 16,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": false,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "applied": 4,
+        "skipped": 1
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    },
+    {
+      "id": 18,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": false,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "applied": 0,
+        "skipped": 5
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    }
+  ],
+  "health_healthy": {
+    "status": "healthy",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "healthy",
+        "events": 8
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 0
+  },
+  "health_broken": {
+    "status": "degraded",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "failed",
+        "kind": "auth",
+        "error": "outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked"
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 1
+  },
+  "planner_refusal": "ProviderAuthError: outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+  "alerts": [
+    {
+      "id": 5,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "level": "alert",
+      "source": "outlook-sandbox",
+      "message": "outlook-sandbox unhealthy (auth): outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+      "detail": {
+        "kind": "auth",
+        "error": "outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+        "status": "failed",
+        "system": "outlook-sandbox"
+      }
+    }
+  ],
+  "health_recovered": {
+    "status": "healthy",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "healthy",
+        "events": 8
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 0
+  }
+}</script>
+<script>
+(function(){
+  "use strict";
+  const D = JSON.parse(document.getElementById('run').textContent);
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+  const START = 8*60, END = 18*60, SPAN = END-START;
+
+  function et(iso){
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    return {ymd:m[1]+"-"+m[2]+"-"+m[3], min:(+m[4])*60 + (+m[5]),
+            hhmm:m[4]+":"+m[5], mon:+m[2], day:+m[3]};
+  }
+  const wsYmd = et(D.week_start).ymd;
+  function dayIndex(ymd){
+    const a = Date.UTC(...wsYmd.split("-").map((v,i)=>i===1?+v-1:+v));
+    const b = Date.UTC(...ymd.split("-").map((v,i)=>i===1?+v-1:+v));
+    return Math.round((b-a)/86400000);
+  }
+  const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const w0 = et(D.week_start);
+  document.getElementById('weekLabel').textContent =
+    "— week of " + w0.day + " " + MONTHS[w0.mon-1];
+
+  // ---- header grid ----
+  const whead = document.getElementById('whead');
+  whead.appendChild(document.createElement('div'));
+  DAYS.forEach((d,i)=>{
+    const c=document.createElement('div');
+    const dt=new Date(Date.UTC(+wsYmd.slice(0,4), +wsYmd.slice(5,7)-1, +wsYmd.slice(8,10)+i));
+    c.textContent = d + " " + dt.getUTCDate();
+    whead.appendChild(c);
+  });
+
+  const wbody = document.getElementById('wbody');
+  const hours = document.createElement('div'); hours.className='hours';
+  for(let h=8; h<=18; h+=2){
+    const s=document.createElement('span');
+    s.style.top = ((h*60-START)/SPAN*100)+"%";
+    s.textContent = String(h).padStart(2,'0')+":00";
+    hours.appendChild(s);
+  }
+  wbody.appendChild(hours);
+  const cols = DAYS.map(()=>{
+    const c=document.createElement('div'); c.className='col';
+    for(let h=9; h<18; h++){
+      const g=document.createElement('div'); g.className='gl';
+      g.style.top=((h*60-START)/SPAN*100)+"%"; c.appendChild(g);
+    }
+    wbody.appendChild(c); return c;
+  });
+
+  function place(col, startIso, endIso, label, cls){
+    const s=et(startIso), e=et(endIso);
+    const el=document.createElement('div');
+    el.className='ev '+cls;
+    el.style.top=((s.min-START)/SPAN*100)+"%";
+    el.style.height=Math.max((e.min-s.min)/SPAN*100, 4.2)+"%";
+    el.innerHTML='<span class="t">'+s.hhmm+'</span>'+label;
+    el.title=label+" ("+s.hhmm+"–"+e.hhmm+")";
+    col.appendChild(el);
+  }
+
+  const flaggedId = (D.plan.actions.find(a=>a.kind==='flag_conflict')||{}).event_id;
+  const movedAct  = D.plan.actions.find(a=>a.kind==='move_event');
+
+  function renderWeek(step){
+    cols.forEach(c=>{ [...c.querySelectorAll('.ev')].forEach(e=>e.remove()); });
+    const applied = step>=3;
+    const events = applied ? D.calendar_after : D.calendar_before;
+
+    events.forEach(ev=>{
+      const di=dayIndex(et(ev.starts_at).ymd);
+      if(di<0||di>4) return;
+      let cls = ev.organizer==='agent' ? 'own' : 'ext';
+      if(applied && ev.subject.indexOf('focus block')>-1) cls='new';
+      if(step>=2 && ev.id===flaggedId) cls='flagged';
+      if(step===2 && movedAct && ev.id===movedAct.event_id) cls='own fading';
+      place(cols[di], ev.starts_at, ev.ends_at, ev.subject, cls);
+    });
+
+    if(step===2){                       // proposal ghosts, nothing written
+      D.plan.actions.forEach(a=>{
+        if(a.kind==='create_event'){
+          const di=dayIndex(et(a.starts_at).ymd);
+          if(di>=0&&di<=4) place(cols[di], a.starts_at, a.ends_at, a.subject+" (proposed)", 'ghost');
+        }
+        if(a.kind==='move_event'){
+          const di=dayIndex(et(a.to.starts_at).ymd);
+          if(di>=0&&di<=4) place(cols[di], a.to.starts_at, a.to.ends_at, "→ "+a.subject, 'ghost');
+        }
+      });
+    }
+  }
+
+  function renderTasks(step){
+    const ul=document.getElementById('tasks'); ul.innerHTML='';
+    const list = step>=3 ? D.tasks_after : [];
+    if(!list.length){
+      const li=document.createElement('li'); li.className='none';
+      li.textContent='No tasks created yet.'; ul.appendChild(li); return;
+    }
+    list.forEach(t=>{
+      const li=document.createElement('li');
+      const d=et(t.due_at);
+      li.textContent=t.name+"  · due "+d.day+" "+MONTHS[d.mon-1]+" "+d.hhmm;
+      ul.appendChild(li);
+    });
+  }
+
+  function renderHealth(step){
+    const el=document.getElementById('health');
+    if(step===5){
+      el.innerHTML='<span class="pill alert"><span class="dot"></span>Degraded</span>'
+        +'<br><br>'+D.health_broken.systems.map(s=>s.system+': '+s.status).join('<br>');
+    } else if(step===6){
+      el.innerHTML='<span class="pill ok"><span class="dot"></span>Recovered</span>'
+        +'<br><br>'+D.health_recovered.systems.map(s=>s.system+': '+s.status).join('<br>');
+    } else {
+      el.innerHTML='<span class="pill ok"><span class="dot"></span>Healthy</span>'
+        +'<br><br>'+D.health_healthy.systems.map(s=>s.system+': '+s.status).join('<br>');
+    }
+  }
+
+  function renderAudit(step){
+    const area=document.getElementById('auditArea');
+    let rows=[];
+    if(step===2) rows=D.audit.slice(0,1);
+    else if(step===3) rows=D.audit.slice(0,7);
+    else if(step>=4) rows=D.audit.slice();
+    if(!rows.length){
+      area.innerHTML='<div class="empty">The audit trail is empty. Nothing has happened yet.</div>';
+      return;
+    }
+    let h='<div class="auditwrap"><table><thead><tr><th>#</th><th>Time</th><th>Mode</th>'
+      +'<th>Who</th><th>Action</th><th>Result</th><th>Target</th></tr></thead><tbody>';
+    rows.forEach(r=>{
+      h+='<tr><td>'+r.id+'</td><td>'+r.at.slice(11,19)+'</td>'
+       +'<td>'+(r.dry_run?'<span style="color:var(--muted)">dry run</span>':'live')+'</td>'
+       +'<td>'+r.actor+'</td><td>'+r.tool+'</td>'
+       +'<td class="res-'+r.result+'">'+r.result+'</td>'
+       +'<td>'+(r.target_id? r.target_system+':'+r.target_id : '—')+'</td></tr>';
+      if(r.before_state && r.after_state && r.before_state.starts_at!==r.after_state.starts_at){
+        h+='<tr><td></td><td colspan="6" class="beforeafter">before '
+          +r.before_state.starts_at.slice(11,16)+'  →  after '
+          +r.after_state.starts_at.slice(11,16)+'  ('+r.after_state.subject+')</td></tr>';
+      }
+    });
+    h+='</tbody></table></div>';
+    area.innerHTML=h;
+  }
+
+  // ---- narrative ----
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function diffHtml(){
+    return esc(D.diff_text)
+      .replace(/^(PLAN .*)$/m,'<span class="c-b">$1</span>')
+      .replace(/^(Nothing has been written yet.*)$/m,'<span class="c-dim">$1</span>')
+      .replace(/(\+ CREATE|\+ TASK)/g,'<span class="c-ok">$1</span>')
+      .replace(/(~ MOVE)/g,'<span class="c-accent">$1</span>')
+      .replace(/(! CONFLICT)/g,'<span class="c-flag">$1</span>')
+      .replace(/(NOT changed)/g,'<span class="c-flag">$1</span>')
+      .replace(/^(Summary:.*)$/m,'<span class="c-b">$1</span>');
+  }
+
+  const STEPS=[
+    {tab:"The week", title:"His week, as it stands",
+     body:"Six commitments. Two of them already break the rules he set for himself: a prep block at 08:00 when he has asked for nothing before 09:00, and an investor call inside his protected Friday afternoon.<br><br>The agent has done nothing yet.",
+     btn:[{label:'Ask Claude for four hours on Project Atlas', go:1}]},
+
+    {tab:"The ask", title:"One sentence, in plain English",
+     ask:D.ask,
+     body:"Claude reads his calendar, his ClickUp board and his stored preferences, then works out what it would take.<br><br><strong>It has not written anything.</strong> Planning and writing are separate paths in the code — the planner is not capable of touching the calendar.",
+     btn:[{label:'Show me what it would change', go:2}]},
+
+    {tab:"Dry run", title:"What would change — for approval",
+     body:"The dashed blocks on the right are proposals, not bookings. The calendar is untouched: <strong>six events before, six now.</strong><br><br>Read the third item. The Friday investor call breaks his rules, and the agent still refuses to move it — an outside party organised it, so moving it would email them in his name. It is flagged for him to decide.",
+     console:true,
+     btn:[{label:'Approve', go:3},{label:'Discard', go:0, ghost:true}]},
+
+    {tab:"Approved", title:"Now, and only now, it writes",
+     body:"Four actions applied in one step: the early block moved, two focus blocks created, and a ClickUp task so the board and the calendar describe the same week.<br><br>The Friday conflict is still there, untouched, exactly as promised.",
+     btn:[{label:'Run the same plan a second time', go:4}]},
+
+    {tab:"Replay", title:"A retry cannot double-book him",
+     body:"Every action carries an idempotency key. Applying the same plan again produced <strong>zero new actions</strong> — five recognised as already done.<br><br>This is what makes a timeout safe. Retry as often as you like; his calendar does not fill up with duplicates.",
+     btn:[{label:'Now break it on purpose', go:5, warn:true}]},
+
+    {tab:"Break it", title:"The failure that actually happens",
+     body:"Not a crash. A client secret quietly expires eight months in, writes stop landing, and nobody notices until a meeting is missed.<br><br>So: the calendar credential is now expired. The health check goes red, an alert is raised, and the planner <strong>refuses to plan</strong> rather than guess against stale data.",
+     alert:true,
+     btn:[{label:'Restore the credential', go:6}]},
+
+    {tab:"Recovery", title:"Restored, and nothing to repair",
+     body:"The credential is valid again and the system resumes. There is nothing to clean up: a run that fails part-way never reports success, and re-applying the plan finishes the remaining actions without repeating the completed ones.<br><br>Degrading to “a human does it this week” is always safe. That is a design property, not luck.",
+     btn:[{label:'Start again', go:0, ghost:true}]}
+  ];
+
+  let cur=0;
+  const rail=document.getElementById('rail');
+  STEPS.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.textContent=(i+1)+'. '+s.tab;
+    b.addEventListener('click',()=>show(i));
+    rail.appendChild(b);
+  });
+
+  function show(i){
+    cur=i; const s=STEPS[i];
+    [...rail.children].forEach((b,k)=>b.setAttribute('aria-current', k===i ? 'true':'false'));
+
+    let h='';
+    if(s.ask){
+      h+='<div class="ask-bubble"><p class="who">The CEO, to Claude</p><p>“'+esc(s.ask)+'”</p></div>';
+    }
+    h+='<h3 class="step-title">'+s.title+'</h3><p class="step-body">'+s.body+'</p>';
+    if(s.console){ h+='<div class="console"><pre>'+diffHtml()+'</pre></div><div style="height:16px"></div>'; }
+    if(s.alert){
+      h+='<div class="console"><pre>'
+        +'<span class="c-alert">'+esc(D.alerts[0].message)+'</span>\n\n'
+        +'<span class="c-dim">planning refused rather than guessing:</span>\n'
+        +'<span class="c-alert">'+esc(D.planner_refusal)+'</span>'
+        +'</pre></div><div style="height:16px"></div>';
+    }
+    h+='<div class="actions">';
+    s.btn.forEach(b=>{
+      h+='<button type="button" class="btn'+(b.ghost?' ghost':'')+(b.warn?' warn':'')
+        +'" data-go="'+b.go+'">'+b.label+'</button>';
+    });
+    h+='</div>';
+    const n=document.getElementById('narrative');
+    n.innerHTML=h;
+    [...n.querySelectorAll('[data-go]')].forEach(b=>{
+      b.addEventListener('click',()=>show(+b.dataset.go));
+    });
+
+    const writes = i>=3 ? D.apply.applied.length : 0;
+    const cEl=document.getElementById('writeCount');
+    cEl.textContent=writes;
+    cEl.className = 'val'+(writes?' hot':'');
+    document.getElementById('counterSay').textContent =
+      i===0 ? 'Nothing has been written. Claude has not been asked anything yet.'
+      : i===1 ? 'Claude has read the week and is working out a plan. Still nothing written.'
+      : i===2 ? 'A full plan exists and is on screen. Still nothing written — this is the whole point.'
+      : i===3 ? 'Approved. Four actions applied, each one recorded with its before and after state.'
+      : i===4 ? 'The plan was applied a second time and added nothing. Retries are safe.'
+      : i===5 ? 'The calendar credential is expired. No further writes are possible, and an alert has been raised.'
+      : 'Credential restored. Four writes total for the week, all of them approved.';
+
+    renderWeek(i); renderTasks(i); renderHealth(i); renderAudit(i);
+  }
+  show(0);
+})();
+</script>

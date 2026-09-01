@@ -1,0 +1,831 @@
+{
+  "generated_at": "2026-08-31T22:26:05.385029-04:00",
+  "timezone": "America/New_York",
+  "week_start": "2026-08-31T00:00:00-04:00",
+  "preferences": {
+    "timezone": "America/New_York",
+    "workday": {
+      "start": "09:00",
+      "end": "17:00"
+    },
+    "no_meetings_before": "09:00",
+    "no_meetings_after": "17:00",
+    "max_meetings_per_day": 4,
+    "min_focus_block_minutes": 60,
+    "max_focus_block_minutes": 120,
+    "buffer_minutes": 15,
+    "protected_blocks": [
+      {
+        "day": "friday",
+        "start": "12:00",
+        "end": "17:00",
+        "label": "Friday afternoon — protected, no meetings"
+      }
+    ],
+    "project_allocations": {
+      "Project Atlas": 4.0,
+      "LATAM Portfolio Review": 2.0
+    }
+  },
+  "ask": "Give Project Atlas 4 hours this week.",
+  "calendar_before": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "plan": {
+    "plan_id": "plan_b6a09c4f74",
+    "intent": "Give Project Atlas 4 hours in the week of 31 Aug 2026",
+    "project": "Project Atlas",
+    "hours_requested": 4.0,
+    "hours_scheduled": 4.0,
+    "shortfall_hours": 0.0,
+    "week_start": "2026-08-31T00:00:00-04:00",
+    "actions": [
+      {
+        "kind": "move_event",
+        "event_id": "evt_78a20a0c6ab1",
+        "subject": "Internal prep — Atlas SPV",
+        "from": {
+          "starts_at": "2026-08-31T08:00:00-04:00",
+          "ends_at": "2026-08-31T08:30:00-04:00"
+        },
+        "to": {
+          "starts_at": "2026-08-31T09:15:00-04:00",
+          "ends_at": "2026-08-31T09:45:00-04:00"
+        },
+        "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it"
+      },
+      {
+        "kind": "flag_conflict",
+        "event_id": "evt_1ee8e5f9a028",
+        "subject": "Investor update — LATAM fund",
+        "when": "2026-09-04T14:00:00-04:00",
+        "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+        "requires": "your decision — organised by an outside party"
+      },
+      {
+        "kind": "create_event",
+        "subject": "Project Atlas — focus block",
+        "starts_at": "2026-08-31T12:15:00-04:00",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "category": "Project Atlas",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas"
+      },
+      {
+        "kind": "create_event",
+        "subject": "Project Atlas — focus block",
+        "starts_at": "2026-09-01T09:00:00-04:00",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "category": "Project Atlas",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas"
+      },
+      {
+        "kind": "create_task",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00",
+        "reason": "keeps ClickUp and the calendar describing the same week"
+      }
+    ],
+    "respected": [
+      "No meetings before 09:00",
+      "No meetings after 17:00",
+      "15-minute buffer around every existing commitment",
+      "Focus blocks between 60 and 120 minutes",
+      "At most 4 meetings per day",
+      "Protected: Friday afternoon — protected, no meetings"
+    ],
+    "status": "proposed"
+  },
+  "diff_text": "PLAN plan_b6a09c4f74 — Give Project Atlas 4 hours in the week of 31 Aug 2026\nNothing has been written yet. This is a proposal.\n\n  ~ MOVE      Mon 31 Aug  Internal prep — Atlas SPV\n              08:00-08:30  ->  09:15-09:45\n              starts 08:00, before your 09:00 rule — yours to move, so rescheduling it\n\n  ! CONFLICT  Fri 04 Sep  14:00  Investor update — LATAM fund\n              lands inside 'Friday afternoon — protected, no meetings'\n              NOT changed — your decision — organised by an outside party\n\n  + CREATE    Mon 31 Aug  12:15-14:15  Project Atlas — focus block\n              2.0h toward the 4h you allocated to Project Atlas\n\n  + CREATE    Tue 01 Sep  09:00-11:00  Project Atlas — focus block\n              2.0h toward the 4h you allocated to Project Atlas\n\n  + TASK      Project Atlas — week of 31 Aug 2026\n              due Fri 04 Sep  17:00 — keeps ClickUp and the calendar describing the same week\n\nSummary: 2 event(s) created, 1 moved, 1 flagged for you, 1 task(s) created.\n         4h of 4h scheduled.\n\nPreferences respected:\n  - No meetings before 09:00\n  - No meetings after 17:00\n  - 15-minute buffer around every existing commitment\n  - Focus blocks between 60 and 120 minutes\n  - At most 4 meetings per day\n  - Protected: Friday afternoon — protected, no meetings",
+  "calendar_during_proposal": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "dry_run": {
+    "message": "Preview only. Nothing was written.",
+    "dry_run": true
+  },
+  "calendar_after_dry_run": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T08:00:00-04:00",
+      "ends_at": "2026-08-31T08:30:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "d4dde71f"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "apply": {
+    "ok": true,
+    "dry_run": false,
+    "plan_id": "plan_b6a09c4f74",
+    "applied": [
+      {
+        "action": "move_event",
+        "id": "evt_78a20a0c6ab1",
+        "subject": "Internal prep — Atlas SPV"
+      },
+      {
+        "action": "create_event",
+        "id": "evt_379566a62388",
+        "subject": "Project Atlas — focus block"
+      },
+      {
+        "action": "create_event",
+        "id": "evt_8bde3ebc9883",
+        "subject": "Project Atlas — focus block"
+      },
+      {
+        "action": "create_task",
+        "id": "task_716afe9f1660",
+        "subject": "Project Atlas — week of 31 Aug 2026"
+      }
+    ],
+    "skipped": [
+      {
+        "action": {
+          "kind": "flag_conflict",
+          "when": "2026-09-04T14:00:00-04:00",
+          "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+          "subject": "Investor update — LATAM fund",
+          "event_id": "evt_1ee8e5f9a028",
+          "requires": "your decision — organised by an outside party"
+        },
+        "why": "your decision — organised by an outside party"
+      }
+    ],
+    "errors": [],
+    "message": "Applied 4 action(s); 1 left for you."
+  },
+  "calendar_after": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T09:15:00-04:00",
+      "ends_at": "2026-08-31T09:45:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "c4af6014"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_379566a62388",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-08-31T12:15:00-04:00",
+      "ends_at": "2026-08-31T14:15:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "28f3fa75"
+    },
+    {
+      "id": "evt_8bde3ebc9883",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-09-01T09:00:00-04:00",
+      "ends_at": "2026-09-01T11:00:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "8023b777"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "tasks_after": [
+    {
+      "id": "task_716afe9f1660",
+      "name": "Project Atlas — week of 31 Aug 2026",
+      "status": "to do",
+      "due_at": "2026-09-04T17:00:00-04:00",
+      "project": "Project Atlas",
+      "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+    }
+  ],
+  "replay": {
+    "ok": true,
+    "dry_run": false,
+    "plan_id": "plan_b6a09c4f74",
+    "applied": [],
+    "skipped": [
+      {
+        "action": {
+          "to": {
+            "ends_at": "2026-08-31T09:45:00-04:00",
+            "starts_at": "2026-08-31T09:15:00-04:00"
+          },
+          "from": {
+            "ends_at": "2026-08-31T08:30:00-04:00",
+            "starts_at": "2026-08-31T08:00:00-04:00"
+          },
+          "kind": "move_event",
+          "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it",
+          "subject": "Internal prep — Atlas SPV",
+          "event_id": "evt_78a20a0c6ab1"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "flag_conflict",
+          "when": "2026-09-04T14:00:00-04:00",
+          "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+          "subject": "Investor update — LATAM fund",
+          "event_id": "evt_1ee8e5f9a028",
+          "requires": "your decision — organised by an outside party"
+        },
+        "why": "your decision — organised by an outside party"
+      },
+      {
+        "action": {
+          "kind": "create_event",
+          "reason": "2.0h toward the 4h you allocated to Project Atlas",
+          "ends_at": "2026-08-31T14:15:00-04:00",
+          "subject": "Project Atlas — focus block",
+          "category": "Project Atlas",
+          "starts_at": "2026-08-31T12:15:00-04:00"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "create_event",
+          "reason": "2.0h toward the 4h you allocated to Project Atlas",
+          "ends_at": "2026-09-01T11:00:00-04:00",
+          "subject": "Project Atlas — focus block",
+          "category": "Project Atlas",
+          "starts_at": "2026-09-01T09:00:00-04:00"
+        },
+        "why": "already applied — idempotent replay"
+      },
+      {
+        "action": {
+          "kind": "create_task",
+          "name": "Project Atlas — week of 31 Aug 2026",
+          "due_at": "2026-09-04T17:00:00-04:00",
+          "reason": "keeps ClickUp and the calendar describing the same week",
+          "project": "Project Atlas",
+          "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+        },
+        "why": "already applied — idempotent replay"
+      }
+    ],
+    "errors": [],
+    "message": "Applied 0 action(s); 5 left for you."
+  },
+  "calendar_after_replay": [
+    {
+      "id": "evt_78a20a0c6ab1",
+      "subject": "Internal prep — Atlas SPV",
+      "starts_at": "2026-08-31T09:15:00-04:00",
+      "ends_at": "2026-08-31T09:45:00-04:00",
+      "organizer": "agent",
+      "category": null,
+      "etag": "c4af6014"
+    },
+    {
+      "id": "evt_c56da3fde1d3",
+      "subject": "Engineering — module reliability review",
+      "starts_at": "2026-08-31T11:00:00-04:00",
+      "ends_at": "2026-08-31T12:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8c402ee3"
+    },
+    {
+      "id": "evt_379566a62388",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-08-31T12:15:00-04:00",
+      "ends_at": "2026-08-31T14:15:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "28f3fa75"
+    },
+    {
+      "id": "evt_8bde3ebc9883",
+      "subject": "Project Atlas — focus block",
+      "starts_at": "2026-09-01T09:00:00-04:00",
+      "ends_at": "2026-09-01T11:00:00-04:00",
+      "organizer": "agent",
+      "category": "Project Atlas",
+      "etag": "8023b777"
+    },
+    {
+      "id": "evt_fe0581493a58",
+      "subject": "Risk committee",
+      "starts_at": "2026-09-01T15:00:00-04:00",
+      "ends_at": "2026-09-01T16:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "8cd3402d"
+    },
+    {
+      "id": "evt_3eb724490a82",
+      "subject": "LATAM counterparty — Bogotá SPV",
+      "starts_at": "2026-09-02T09:30:00-04:00",
+      "ends_at": "2026-09-02T10:30:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "e33ec172"
+    },
+    {
+      "id": "evt_ce55f1eb0528",
+      "subject": "Board prep",
+      "starts_at": "2026-09-03T13:00:00-04:00",
+      "ends_at": "2026-09-03T14:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "7172e8bc"
+    },
+    {
+      "id": "evt_1ee8e5f9a028",
+      "subject": "Investor update — LATAM fund",
+      "starts_at": "2026-09-04T14:00:00-04:00",
+      "ends_at": "2026-09-04T15:00:00-04:00",
+      "organizer": "external",
+      "category": null,
+      "etag": "c0cce511"
+    }
+  ],
+  "audit": [
+    {
+      "id": 10,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "actions": 5,
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": true,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "preview": true
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    },
+    {
+      "id": 11,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "move_event",
+      "params": {
+        "to": {
+          "ends_at": "2026-08-31T09:45:00-04:00",
+          "starts_at": "2026-08-31T09:15:00-04:00"
+        },
+        "from": {
+          "ends_at": "2026-08-31T08:30:00-04:00",
+          "starts_at": "2026-08-31T08:00:00-04:00"
+        },
+        "kind": "move_event",
+        "reason": "starts 08:00, before your 09:00 rule — yours to move, so rescheduling it",
+        "subject": "Internal prep — Atlas SPV",
+        "event_id": "evt_78a20a0c6ab1"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_78a20a0c6ab1",
+      "before_state": {
+        "id": "evt_78a20a0c6ab1",
+        "etag": "d4dde71f",
+        "ends_at": "2026-08-31T08:30:00-04:00",
+        "subject": "Internal prep — Atlas SPV",
+        "category": null,
+        "organizer": "agent",
+        "starts_at": "2026-08-31T08:00:00-04:00"
+      },
+      "after_state": {
+        "id": "evt_78a20a0c6ab1",
+        "etag": "c4af6014",
+        "ends_at": "2026-08-31T09:45:00-04:00",
+        "subject": "Internal prep — Atlas SPV",
+        "category": null,
+        "organizer": "agent",
+        "starts_at": "2026-08-31T09:15:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:0:move_event"
+    },
+    {
+      "id": 12,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "kind": "flag_conflict",
+        "when": "2026-09-04T14:00:00-04:00",
+        "reason": "lands inside 'Friday afternoon — protected, no meetings'",
+        "subject": "Investor update — LATAM fund",
+        "event_id": "evt_1ee8e5f9a028",
+        "requires": "your decision — organised by an outside party"
+      },
+      "dry_run": false,
+      "target_system": "calendar",
+      "target_id": "evt_1ee8e5f9a028",
+      "before_state": null,
+      "after_state": null,
+      "result": "skipped",
+      "error": "your decision — organised by an outside party",
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:1:flag_conflict"
+    },
+    {
+      "id": 13,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_event",
+      "params": {
+        "kind": "create_event",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "starts_at": "2026-08-31T12:15:00-04:00"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_379566a62388",
+      "before_state": null,
+      "after_state": {
+        "id": "evt_379566a62388",
+        "etag": "28f3fa75",
+        "ends_at": "2026-08-31T14:15:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "organizer": "agent",
+        "starts_at": "2026-08-31T12:15:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:2:create_event"
+    },
+    {
+      "id": 14,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_event",
+      "params": {
+        "kind": "create_event",
+        "reason": "2.0h toward the 4h you allocated to Project Atlas",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "starts_at": "2026-09-01T09:00:00-04:00"
+      },
+      "dry_run": false,
+      "target_system": "outlook-sandbox",
+      "target_id": "evt_8bde3ebc9883",
+      "before_state": null,
+      "after_state": {
+        "id": "evt_8bde3ebc9883",
+        "etag": "8023b777",
+        "ends_at": "2026-09-01T11:00:00-04:00",
+        "subject": "Project Atlas — focus block",
+        "category": "Project Atlas",
+        "organizer": "agent",
+        "starts_at": "2026-09-01T09:00:00-04:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:3:create_event"
+    },
+    {
+      "id": 15,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "create_task",
+      "params": {
+        "kind": "create_task",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "reason": "keeps ClickUp and the calendar describing the same week",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+      },
+      "dry_run": false,
+      "target_system": "clickup-sandbox",
+      "target_id": "task_716afe9f1660",
+      "before_state": null,
+      "after_state": {
+        "id": "task_716afe9f1660",
+        "name": "Project Atlas — week of 31 Aug 2026",
+        "due_at": "2026-09-04T17:00:00-04:00",
+        "status": "to do",
+        "project": "Project Atlas",
+        "description": "Scheduled focus time:\n- Mon 31 Aug 12:15-14:15\n- Tue 01 Sep 09:00-11:00"
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": "plan_b6a09c4f74:4:create_task"
+    },
+    {
+      "id": 16,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": false,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "applied": 4,
+        "skipped": 1
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    },
+    {
+      "id": 18,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "actor": "claude",
+      "tool": "apply_plan",
+      "params": {
+        "plan_id": "plan_b6a09c4f74"
+      },
+      "dry_run": false,
+      "target_system": null,
+      "target_id": null,
+      "before_state": null,
+      "after_state": {
+        "applied": 0,
+        "skipped": 5
+      },
+      "result": "ok",
+      "error": null,
+      "plan_id": "plan_b6a09c4f74",
+      "idempotency_key": null
+    }
+  ],
+  "health_healthy": {
+    "status": "healthy",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "healthy",
+        "events": 8
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 0
+  },
+  "health_broken": {
+    "status": "degraded",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "failed",
+        "kind": "auth",
+        "error": "outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked"
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 1
+  },
+  "planner_refusal": "ProviderAuthError: outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+  "alerts": [
+    {
+      "id": 5,
+      "at": "2026-08-31T22:26:05.382346-04:00",
+      "level": "alert",
+      "source": "outlook-sandbox",
+      "message": "outlook-sandbox unhealthy (auth): outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+      "detail": {
+        "kind": "auth",
+        "error": "outlook-sandbox: 401 InvalidAuthenticationToken — access token expired or admin consent revoked",
+        "status": "failed",
+        "system": "outlook-sandbox"
+      }
+    }
+  ],
+  "health_recovered": {
+    "status": "healthy",
+    "systems": [
+      {
+        "system": "outlook-sandbox",
+        "status": "healthy",
+        "events": 8
+      },
+      {
+        "system": "clickup-sandbox",
+        "status": "healthy",
+        "tasks": 1
+      }
+    ],
+    "failures": 0
+  }
+}
